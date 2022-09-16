@@ -1,6 +1,13 @@
 '''Task 9
-bot........
-.......'''
+Bot. A console bot helper that will recognize commands entered 
+from the keyboard and respond accordingly.
+The bot accepts commands:
+"hello", replies to the console "How can I help you?"
+"add ...". With this command, the bot saves a new contact in memory (in the dictionary, for example). Instead of ... the user enters the name and phone number, necessarily with a space.
+"change ..." With this command, the bot stores the new phone number of the existing contact in memory. Instead of ... the user enters the name and phone number, necessarily with a space.
+"phone ...." With this command, the bot outputs the phone number for the specified contact to the console. Instead of ... the user enters the name of the contact whose number should be displayed.
+"show all". With this command, the bot outputs all saved contacts with phone numbers to the console.
+"good bye", "close", "exit" by any of these commands, the bot ends its work after outputting "Good bye!" to the console.'''
 
 from genericpath import isdir
 import os
@@ -11,37 +18,42 @@ cont_dict = {}
 
 
 def input_error(handler):
-    '''...
-    incoming: 
-    return: '''
+    '''User error handler
+    incoming: handler (function)
+    return: result(str) or exception_function'''
     global cont_dict
 
     # => user input command items in the list
     def exception_function(user_command):
-        if handler == h_showall:
-            if len(cont_dict) == 0:
+        if handler.__name__ == "h_showall":
+            if not cont_dict:
                 return "No contact records available\n"
-        if handler == h_phone:
-            if len(cont_dict) == 0:
+        if handler.__name__ == "h_phone":
+            if not cont_dict:
                 return "No contact records available\n"
-            if not user_command[1]:
+            if len(user_command) < 2:
                 return "Give me a name too, please\n"
-            if 48 <= ord(user_command[1][0]) <= 57:
+            if user_command[1][0].isdigit():
                 return "A name cannot begin with a number!\n"
-        if handler == h_change:
-            if len(cont_dict) == 0:
+            elif not user_command[1][0].isalpha():
+                return "The name can only begin with Latin characters!\n"
+        if handler.__name__ == "h_change":
+            if not cont_dict:
                 return "No contact records available. You can add records\n"
-        if handler == h_change or handler == h_add:
-            if not user_command[1] or not user_command[2]:
+        number_separators = '+ ()-012456789'
+        if handler.__name__ == "h_change" or handler.__name__ == "h_add":
+            if len(user_command) < 3:
                 return "Give me name and phone please\n"
-            if 48 <= ord(user_command[1][0]) <= 57:
+            if user_command[1][0].isdigit():
                 return "A name cannot begin with a number!\n"
-            if len([i for i in user_command[2] if 48 <= ord(user_command[2][0])] <= 57 or user_command[2][0] == '+') != len(user_command[1]):
+            elif not user_command[1][0].isalpha():
+                return "The name can only begin with Latin characters!\n"
+            if len([i for i in user_command[2] if i in number_separators]) != len(user_command[2]):
                 return "The number contains invalid characters\n"
+
         try:
             result = handler(user_command)
-            if result == None:
-                result = "No contact record available"
+
         except KeyError:
             result = f"{ValueError}"
 
@@ -51,15 +63,21 @@ def input_error(handler):
         except IndexError:
             result = "Give me name and phone please"
 
+        except Exception as Error_1:
+            result = f"{Error_1}"
+
+        if result == None:
+            result = "No contact record available"
+
         return result
 
     return exception_function
 
 
 def helper_try_open_file(path_file: str) -> str:
-    '''...
-    incoming: 
-    return: '''
+    '''Checks if the database file exists and checks if the filename is free if not
+    incoming: path_file is name of file
+    return: name of file'''
     stored_dict = {}
     if os.path.isdir(path_file):
         while os.path.exists(path_file):
@@ -74,18 +92,22 @@ def helper_try_open_file(path_file: str) -> str:
 
 @input_error
 def h_phone(user_command: list) -> str:
-    '''...
-    incoming: 
-    return: '''
+    '''"phone ...." With this command, the bot outputs the phone number for the specified 
+    contact to the console. Instead of ... the user enters the name of the contact 
+    whose number should be displayed.
+    incoming: list of user command (name of user)
+    return: phone number of user'''
     global cont_dict
     return cont_dict.get(user_command[1])
 
 
 @input_error
 def h_change(user_command: list) -> str:  # list of str
-    '''...
-    incoming: 
-    return: '''
+    '''"change ..." With this command, the bot stores the new phone number 
+    of the existing contact in memory. Instead of ... the user enters 
+    the name and phone number, necessarily with a space.
+    incoming: list of user command (name of user)
+    return: string'''
     global cont_dict
     name = user_command[1]
     phone = user_command[2]
@@ -99,9 +121,12 @@ def h_change(user_command: list) -> str:  # list of str
 
 @input_error
 def h_add(user_command: list) -> str:
-    '''...
-    incoming: 
-    return: '''
+    '''"add ...". With this command, the bot saves 
+    a new contact in memory (in the dictionary, for 
+    example). Instead of ... the user enters the name 
+    and phone number, necessarily with a space.
+    incoming: list of user command (name of user)
+    return: string'''
     global cont_dict
     name = user_command[1]
     phone = user_command[2]
@@ -117,9 +142,10 @@ def h_exit(not_matter: any) -> str:
 
 @input_error
 def h_showall(not_matter: any) -> str:
-    '''...
-    incoming: 
-    return: '''
+    '''"show all". With this command, the bot outputs all saved 
+    contacts with phone numbers to the console.
+    incoming: not_matter: any
+    return: string of all users'''
     global cont_dict
     cont_dict = helper_opener()[0]
     all_list = ""
@@ -130,9 +156,9 @@ def h_showall(not_matter: any) -> str:
 
 
 def helper_opener() -> list:
-    '''...
-    incoming: 
-    return: '''
+    '''loads a list of users from a file
+    incoming: None
+    return: list of user dictionary and new path file(database)'''
     path_file = 'ABook.bdata'
     new_path_file = helper_try_open_file(path_file)
 
@@ -143,9 +169,9 @@ def helper_opener() -> list:
 
 
 def main_handler(user_command: list):
-    '''...
-    incoming: 
-    return: '''
+    '''All possible bot commands
+    incoming: user command
+    return: function according to the command'''
     all_command = {"hello": h_hello(user_command),
                    "add": h_add(user_command),
                    "change": h_change(user_command),
@@ -163,9 +189,11 @@ def h_hello(user_command: any) -> str:
 
 
 def parser(user_input: str) -> list:
-    '''...
-    incoming: 
-    return: '''
+    '''Command parser. The part responsible for parsing 
+    strings entered by the user, extracting keywords and 
+    command modifiers from the string.
+    incoming: string from user
+    return: list of comands'''
     return user_input.strip().lower().replace("good bye", "goodbye").replace("show all", "showall").split(" ")
 
 
