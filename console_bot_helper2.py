@@ -21,7 +21,7 @@ def input_error(handler):
     '''User error handler
     incoming: handler (function)
     return: result(str) or exception_function'''
-    global cont_dict
+    # global cont_dict
 
     # => user input command items in the list
     def exception_function(user_command):
@@ -40,7 +40,7 @@ def input_error(handler):
         if handler.__name__ == "h_change":
             if not cont_dict:
                 return "No contact records available. You can add records\n"
-        number_separators = '+ ()-012456789'
+        number_separators = '+ ()-0123456789'
         if handler.__name__ == "h_change" or handler.__name__ == "h_add":
             if len(user_command) < 3:
                 return "Give me name and phone please\n"
@@ -97,7 +97,7 @@ def h_phone(user_command: list) -> str:
     whose number should be displayed.
     incoming: list of user command (name of user)
     return: phone number of user'''
-    global cont_dict
+    # global cont_dict
     return cont_dict.get(user_command[1])
 
 
@@ -108,7 +108,7 @@ def h_change(user_command: list) -> str:  # list of str
     the name and phone number, necessarily with a space.
     incoming: list of user command (name of user)
     return: string'''
-    global cont_dict
+    # global cont_dict
     name = user_command[1]
     phone = user_command[2]
     cont_dict.pop(name, None)
@@ -127,7 +127,7 @@ def h_add(user_command: list) -> str:
     and phone number, necessarily with a space.
     incoming: list of user command (name of user)
     return: string'''
-    global cont_dict
+    # global cont_dict
     name = user_command[1]
     phone = user_command[2]
     cont_dict.update({name: phone})
@@ -136,12 +136,12 @@ def h_add(user_command: list) -> str:
     return "The record added\n"
 
 
-def h_exit(not_matter: any) -> str:
+def h_exit(_=None) -> str:
     return "Good bye!"
 
 
 @input_error
-def h_showall(not_matter: any) -> str:
+def h_showall(_=None) -> str:
     '''"show all". With this command, the bot outputs all saved 
     contacts with phone numbers to the console.
     incoming: not_matter: any
@@ -150,12 +150,12 @@ def h_showall(not_matter: any) -> str:
     cont_dict = helper_opener()[0]
     all_list = ""
     for name, phone in cont_dict.items():
-        all_list += f"{name} phone: {phone}" + "\n"
+        all_list += f"{name} phone: {phone}\n"
 
     return all_list
 
 
-def helper_opener() -> list:
+def helper_opener() -> tuple:
     '''loads a list of users from a file
     incoming: None
     return: list of user dictionary and new path file(database)'''
@@ -165,26 +165,28 @@ def helper_opener() -> list:
     with open(new_path_file, 'rb') as f:
         stored_dict = pickle.load(f)
 
-    return [stored_dict, new_path_file]
+    return (stored_dict, new_path_file)
 
 
 def main_handler(user_command: list):
     '''All possible bot commands
     incoming: user command
     return: function according to the command'''
-    all_command = {"hello": h_hello(user_command),
-                   "add": h_add(user_command),
-                   "change": h_change(user_command),
-                   "phone": h_phone(user_command),
-                   "showall": h_showall(user_command),
-                   "goodbye": h_exit(user_command),
-                   "close": h_exit(user_command),
-                   "exit": h_exit(user_command)}
+    all_command = {"hello": h_hello,
+                   "add": h_add,
+                   "change": h_change,
+                   "phone": h_phone,
+                   "showall": h_showall,
+                   "goodbye": h_exit,
+                   "close": h_exit,
+                   "exit": h_exit}
 
-    return all_command.get(user_command[0], "It is unclear")
+    if all_command.get(user_command[0], "It is unclear") != "It is unclear":
+        return all_command.get(user_command[0])(user_command)
+    return "It is unclear"
 
 
-def h_hello(user_command: any) -> str:
+def h_hello(_=None) -> str:
     return "How can I help you?\n"
 
 
