@@ -54,20 +54,20 @@ def input_error(handler):
         try:
             result = handler(user_command)
 
-        except KeyError:
-            result = f"{ValueError}"
+        except KeyError as error:
+            return f"An incorrect name was entered ({error})"
 
-        except ValueError:
-            result = f"{ValueError}"
+        except ValueError as error:
+            return f"I don't know such commands ({error})"
 
-        except IndexError:
-            result = "Give me name and phone please"
+        except IndexError as error:
+            return f"No values in database ({error})"
 
-        except Exception as Error_1:
-            result = f"{Error_1}"
+        except Exception as error:
+            return f"Something went wrong ({error})"
 
-        if result == None:
-            result = "No contact record available"
+        if result is None:
+            return "No contact record available"
 
         return result
 
