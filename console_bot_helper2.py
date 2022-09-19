@@ -20,7 +20,7 @@ cont_dict = {}
 def input_error(handler):
     '''User error handler
     incoming: handler (function)
-    return: result(str) or exception_function'''
+    return: result(str) or exception_function(handler(user_command))'''
     # global cont_dict
 
     # => user input command items in the list
@@ -147,7 +147,7 @@ def h_showall(_=None) -> str:
     incoming: not_matter: any
     return: string of all users'''
     global cont_dict
-    cont_dict = helper_opener()[0]
+    cont_dict = helper_opener()[0]  # why?
     all_list = ""
     for name, phone in cont_dict.items():
         all_list += f"{name} phone: {phone}\n"
@@ -200,9 +200,11 @@ def parser(user_input: str) -> list:
 
 
 def main():
+
     global cont_dict
     # load contact dict if it available:
     cont_dict = helper_opener()[0]
+
     while True:
         user_command = input()
         user_request = parser(user_command)
