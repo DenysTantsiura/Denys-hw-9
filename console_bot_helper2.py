@@ -9,7 +9,7 @@ The bot accepts commands:
 "show all". With this command, the bot outputs all saved contacts with phone numbers to the console.
 "good bye", "close", "exit" by any of these commands, the bot ends its work after outputting "Good bye!" to the console.'''
 
-from genericpath import isdir
+#from genericpath import isdir
 import os
 import pickle
 
